@@ -27,13 +27,25 @@ class MessageHandler(BaseHTTPRequestHandler):
         data = self.rfile.read(length).decode()
 
         # Extract the "message" field from the request data.
-        message = parse_qs(data)["message"][0]
+        message = parse_qs(data)["message"][0].encode()
 
         # Send the "message" field back as the response.
         self.send_response(200)
         self.send_header('Content-type', 'text/plain; charset=utf-8')
+        self.send_header('Content-length', len(message))
         self.end_headers()
-        self.wfile.write(message.encode())
+        self.wfile.write(message)
+
+    def do_GET(self):
+        # Variation, read the message from the message html file
+        with open('Messageboard.html', 'r') as f:
+            data = f.read().encode()
+
+        self.send_response(200)
+        self.send_header('Content-type', 'text/html; charset=utf-8')
+        self.send_header('Content-length', len(data))
+        self.end_headers()
+        self.wfile.write(data)
 
 if __name__ == '__main__':
     server_address = ('', 8000)
